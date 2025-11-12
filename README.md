@@ -21,7 +21,7 @@
 ## 🎨 Demo
 
 Open the live demo on GitHub Pages:  
-👉 **[your-username.github.io/github-traffic-dashboard](https://your-username.github.io/github-traffic-dashboard)**  
+👉 **[your-username.github.io/github-traffic-dashboard](https://snowbellsan.github.io/Github-Traffic-Dashboard)**  
 
 *(Replace `your-username` with your actual GitHub username after enabling Pages.)*
 
