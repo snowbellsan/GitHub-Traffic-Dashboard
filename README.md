@@ -77,6 +77,13 @@ Open the live demo on GitHub Pages:
 
 ---
 
+## Author
+
+**Jack**    ( https://x.com/Jackpot_jack )  
+*Simulator Archaeologist | AI Conductor | One-sentence Philosopher*
+
+---
+
 ## 🚧 Deployment on GitHub Pages
 
 ```bash
