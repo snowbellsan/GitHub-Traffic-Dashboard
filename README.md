@@ -1,6 +1,5 @@
 # 🌟 GitHub Traffic Dashboard 🌟
 
-![Dashboard preview](https://via.placeholder.com/1200x600/667eea/764ba2?text=GitHub+Traffic+Dashboard+Preview)  
 *Neon-styled, animated traffic analyzer for every repository under your GitHub account.*
 
 ---
