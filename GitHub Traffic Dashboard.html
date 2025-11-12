@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 GitHub Traffic Dashboard 🌟</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* アニメーション定義 */
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes glow {
+    0%, 100% { text-shadow: 0 0 10px #58a6ff, 0 0 20px #58a6ff, 0 0 30px #9be9a8; }
+    50% { text-shadow: 0 0 20px #58a6ff, 0 0 40px #58a6ff, 0 0 60px #9be9a8; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(88,166,255,0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(88,166,255,0.8); }
+  }
+  
+  body { 
+    font-family: 'Orbitron', sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    color:#fff; 
+    padding:20px; 
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(88,166,255,0.3), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(155,233,168,0.3), transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255,99,132,0.3), transparent 50%);
+    pointer-events: none;
+    animation: pulse 8s ease-in-out infinite;
+  }
+  h1 { 
+    text-align:center; 
+    color:#fff; 
+    font-size: 3em;
+    animation: glow 2s ease-in-out infinite, float 3s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 30px;
+  }
+  #status { 
+    text-align:center; 
+    color:#fff; 
+    margin-top:10px; 
+    font-weight:bold; 
+    font-size:1.2em;
+    text-shadow:0 0 10px rgba(255,255,255,0.8);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  table { 
+    width:100%; 
+    border-collapse: collapse; 
+    margin-top:20px; 
+    box-shadow:0 0 30px rgba(255,255,255,0.3), 0 0 60px rgba(88,166,255,0.5);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  th, td { 
+    border:2px solid rgba(255,255,255,0.3); 
+    padding:15px; 
+    text-align:center; 
+    transition: all 0.3s;
+    font-size: 1.1em;
+  }
+  th { 
+    background: linear-gradient(135deg, rgba(102,126,234,0.9), rgba(118,75,162,0.9));
+    cursor:pointer; 
+    color:#fff;
+    text-shadow:0 0 10px rgba(255,255,255,0.8);
+    font-size: 1.2em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  th:hover {
+    background: linear-gradient(135deg, rgba(118,75,162,0.9), rgba(102,126,234,0.9));
+    transform: scale(1.05);
+  }
+  tr:nth-child(even){ background-color: rgba(255,255,255,0.15); }
+  tr:hover { 
+    background: linear-gradient(90deg, rgba(88,166,255,0.5), rgba(155,233,168,0.5));
+    color:#fff; 
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+  }
+  input, button, select { 
+    background: rgba(255,255,255,0.2); 
+    color:#fff; 
+    border:2px solid rgba(255,255,255,0.5); 
+    padding:10px 20px; 
+    border-radius:25px; 
+    transition: all 0.3s;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    backdrop-filter: blur(10px);
+  }
+  input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
+  select option {
+    background: rgba(102,126,234,0.95);
+    color: #fff;
+    padding: 10px;
+  }
+  button:hover, select:hover { 
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transform: scale(1.1); 
+    cursor:pointer; 
+    box-shadow: 0 0 30px rgba(255,255,255,0.8);
+  }
+  button:active {
+    transform: scale(0.95);
+  }
+  canvas { 
+    margin-top:40px; 
+    background: rgba(0,0,0,0.3); 
+    border:3px solid rgba(255,255,255,0.5); 
+    border-radius:20px; 
+    box-shadow: 0 0 40px rgba(88,166,255,0.6);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
+  }
+  /* 色分け列 */
+  td:nth-child(2) { background: rgba(88,166,255,0.3); box-shadow: inset 0 0 10px rgba(88,166,255,0.5); }
+  td:nth-child(3) { background: rgba(155,233,168,0.3); box-shadow: inset 0 0 10px rgba(155,233,168,0.5); }
+  td:nth-child(4) { background: rgba(255,205,86,0.3); box-shadow: inset 0 0 10px rgba(255,205,86,0.5); }
+  td:nth-child(5) { background: rgba(255,99,132,0.3); box-shadow: inset 0 0 10px rgba(255,99,132,0.5); }
+  
+  .input-container {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 40px rgba(255,255,255,0.3);
+    margin-bottom: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 1;
+  }
+  .input-container p {
+    font-size: 1.3em;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8);
+  }
+</style>
+</head>
+<body>
+
+<h1>🌌 GitHub Traffic Dashboard 🌌</h1>
+
+<div class="input-container" style="text-align:center;">
+  <p>Enter your GitHub username and Classic Token 💫</p>
+  <label>Username: <input id="username" placeholder="example-user"></label><br><br>
+  <label>Classic Token: <input id="token" type="password" placeholder="ghp_xxxxx"></label><br><br>
+  <button onclick="loadTraffic()">🚀 Fetch Data! 🚀</button>
+</div>
+
+<div class="input-container" style="text-align:center; margin-top:15px;">
+  <label>Sort by: 
+    <select id="sort-column">
+      <option value="name">Repository Name</option>
+      <option value="views">Views</option>
+      <option value="uniques">Unique Visitors</option>
+      <option value="clones">Clones</option>
+      <option value="uniqueCloners">Unique Cloners</option>
+    </select>
+  </label>
+  <label>Order:
+    <select id="sort-order">
+      <option value="asc">Ascending</option>
+      <option value="desc">Descending</option>
+    </select>
+  </label>
+  <button onclick="sortTable()">✨ Sort ✨</button>
+</div>
+
+<div id="status"></div>
+
+<table id="traffic-table" style="display:none;">
+  <tr><th>Repository Name</th><th>Views</th><th>Unique Visitors</th><th>Clones</th><th>Unique Cloners</th></tr>
+</table>
+
+<canvas id="traffic-chart" style="display:none;"></canvas>
+
+<script>
+let repoData = []; // データ格納
+let chartInstance = null; // チャートインスタンス保存
+
+async function loadTraffic() {
+  const username = document.getElementById("username").value.trim();
+  const token = document.getElementById("token").value.trim();
+  const table = document.getElementById("traffic-table");
+  const status = document.getElementById("status");
+  const chartCanvas = document.getElementById("traffic-chart");
+
+  if (!username || !token) { alert("Please enter both username and token 💦"); return; }
+
+  status.textContent = "🌟 Fetching repository list...";
+  table.style.display = "table";
+  table.innerHTML = "<tr><th>Repository Name</th><th>Views</th><th>Unique Visitors</th><th>Clones</th><th>Unique Cloners</th></tr>";
+  chartCanvas.style.display = "none";
+  repoData = [];
+
+  try {
+    const repoRes = await fetch(`https://api.github.com/user/repos?per_page=100`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (repoRes.status !== 200) { status.textContent = `⚠️ Repository fetch error ${repoRes.status}`; return; }
+    const repos = await repoRes.json();
+    status.textContent = `🌟 Fetching traffic from ${repos.length} repositories...`;
+
+    for (const repo of repos) {
+      const trafficRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/traffic/views`, {
+        headers: { Authorization: `token ${token}` }
+      });
+      const cloneRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/traffic/clones`, {
+        headers: { Authorization: `token ${token}` }
+      });
+
+      let views=0, uniques=0, clones=0, uniqueCloners=0;
+
+      if (trafficRes.status === 200) {
+        const data = await trafficRes.json();
+        views = data.count ?? 0;
+        uniques = data.uniques ?? 0;
+      }
+
+      if (cloneRes.status === 200) {
+        const data = await cloneRes.json();
+        clones = data.count ?? 0;
+        uniqueCloners = data.uniques ?? 0;
+      }
+
+      repoData.push({
+        name: repo.name,
+        views, uniques, clones, uniqueCloners
+      });
+    }
+
+    renderTableAndChart();
+    status.textContent = "✅ Fetch complete!";
+
+  } catch (err) {
+    status.textContent = `⚠️ Error: ${err.message}`;
+  }
+}
+
+function renderTableAndChart() {
+  const table = document.getElementById("traffic-table");
+  table.innerHTML = "<tr><th>Repository Name</th><th>Views</th><th>Unique Visitors</th><th>Clones</th><th>Unique Cloners</th></tr>";
+  repoData.forEach(r => {
+    const row = table.insertRow();
+    row.insertCell().textContent = r.name;
+    row.insertCell().textContent = r.views;
+    row.insertCell().textContent = r.uniques;
+    row.insertCell().textContent = r.clones;
+    row.insertCell().textContent = r.uniqueCloners;
+  });
+
+  const chartCanvas = document.getElementById("traffic-chart");
+  chartCanvas.style.display = "block";
+
+  // 既存のチャートを破棄
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(chartCanvas, {
+    type: 'bar',
+    data: {
+      labels: repoData.map(r=>r.name),
+      datasets: [
+        { label: 'Views', data: repoData.map(r=>r.views), backgroundColor: 'rgba(88,166,255,0.8)' },
+        { label: 'Unique Visitors', data: repoData.map(r=>r.uniques), backgroundColor: 'rgba(155,233,168,0.8)' },
+        { label: 'Clones', data: repoData.map(r=>r.clones), backgroundColor: 'rgba(255,205,86,0.8)' },
+        { label: 'Unique Cloners', data: repoData.map(r=>r.uniqueCloners), backgroundColor: 'rgba(255,99,132,0.8)' }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 1500, easing: 'easeOutBounce' },
+      plugins: { legend: { labels: { color: '#fff', font: { size:14, family: 'Orbitron' } } } },
+      scales: {
+        x: { ticks: { color: '#fff' } },
+        y: { ticks: { color: '#fff', beginAtZero:true } }
+      }
+    }
+  });
+}
+
+function sortTable() {
+  const col = document.getElementById("sort-column").value;
+  const order = document.getElementById("sort-order").value;
+
+  repoData.sort((a,b) => {
+    if(typeof a[col] === "string") {
+      return order==="asc"? a[col].localeCompare(b[col]) : b[col].localeCompare(a[col]);
+    } else {
+      return order==="asc"? a[col]-b[col] : b[col]-a[col];
+    }
+  });
+
+  renderTableAndChart();
+}
+</script>
+
+</body>
+</html>
